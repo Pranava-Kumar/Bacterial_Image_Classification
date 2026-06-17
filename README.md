@@ -1,106 +1,42 @@
-# Bacterial Image Classification App
+# 🔬 Microscopic Bacterial Species Classifier (PyTorch & FastAPI)
 
-This application uses a deep learning model to classify bacterial species from microscopic images. It features a Next.js frontend with an interactive UI and a Python FastAPI backend for model inference.
+[![Framework: PyTorch](https://img.shields.io/badge/Framework-PyTorch-orange.svg)](https://pytorch.org/)
+[![Backend: FastAPI](https://img.shields.io/badge/Backend-FastAPI-green.svg)](https://fastapi.tiangolo.com/)
+[![Frontend: Next.js 15](https://img.shields.io/badge/Frontend-Next.js_15-black.svg)](https://nextjs.org/)
+[![Dataset: EMDS-7](https://img.shields.io/badge/Dataset-EMDS--7-blue.svg)]()
 
-## Project Structure
+A medical computer vision and deep learning application that processes microscopic images, detects bacterial shapes, and classifies them into species. Built with a PyTorch CNN backend, a FastAPI server, and a Next.js 15 frontend.
 
-- `frontend/` - Next.js frontend application
-- `best_model.pth` - Trained PyTorch model
-- `akc_sih_project.py` - Original Python training script
-- `api_server.py` - Python FastAPI backend
-- `requirements.txt` - Python dependencies
-- `setup_model.py` - Script to extract class names from the model
-- `class_names.json` - File containing class names (generated automatically)
-- `start_application.bat` - Batch file to start both services
-- `run_application.bat` - Batch file to run the application (after initial setup)
+---
 
-## Setup Instructions
+## 📖 Architecture & Data Pipeline
 
-1. **Install Python Dependencies**:
+This application provides an end-to-end pipeline:
+1. **Dataset**: Trained on the **EMDS-7 (Environmental Microorganism Dataset)** which contains microscopic bacterial images and XML annotations (bounding boxes, class labels).
+2. **Deep Learning Model (PyTorch)**: Fine-tunes a pre-trained ResNet/EfficientNet model (`torchvision.models`) using custom data loaders that parse XML annotations, resize images, apply augmentations (random rotate, crop, brightness, contrast), and compile into `best_model.pth`.
+3. **API Server (FastAPI)**: Serves model inference via POST endpoints, automatically runs image preprocessing, runs the PyTorch forward pass, and formats classifications with confidence levels.
+4. **Interactive UI (Next.js 15)**: A clean landing page for medical researchers to upload microscopic images, visualize prediction confidences (using Recharts), and read detailed description metadata.
 
-   ```bash
-   pip install -r requirements.txt
-   ```
+---
 
-2. **Extract Model Information**:
+## 🔬 Setup & Model Initialization
 
-   Run the setup script to analyze your EMDS7 dataset and trained model to extract class names:
-   ```bash
-   python setup_model.py
-   ```
-   
-   This will:
-   - Analyze your EMDS7 dataset (EMDS7/EMDS7Img and EMDS7/EMDS7xml directories)
-   - Extract class names from the XML annotations
-   - Verify the number of classes matches your trained model
-   - Create a `class_names.json` file with the correct class names
-   - Create a `model_info.json` file with model information
-
-3. **Install Node.js Dependencies** (in the frontend directory):
-
-   ```bash
-   cd frontend
-   npm install
-   ```
-
-## Running the Application
-
-### Option 1: Using Batch Files (Recommended)
-
-After the initial setup, simply run:
+### 1. Install Backend Dependencies
 ```bash
-run_application.bat
+pip install fastapi uvicorn torch torchvision pillow scikit-learn matplotlib tqdm
 ```
 
-This will start both the backend and frontend automatically.
+### 2. Auto-Extract Class Names & Verify Model
+Run the setup script to parse XML files from the EMDS7 dataset, verify class dimensions, and dump metadata:
+```bash
+python setup_model.py
+```
+This automatically writes `class_names.json` and `model_info.json` for the API server.
 
-### Option 2: Manual Start
-
-1. **Start the Python Backend**:
-
-   ```bash
-   cd ..
-   python api_server.py
-   ```
-   
-   The backend will start on `http://localhost:8000`
-
-2. **Start the Next.js Frontend** (in a new terminal):
-
-   ```bash
-   cd frontend
-   npm run dev
-   ```
-   
-   The frontend will start on `http://localhost:3000`
-
-3. **Access the Application**:
-
-   Open your browser and go to `http://localhost:3000`
-
-## How to Use
-
-1. Upload a bacterial image (JPG, PNG, BMP formats supported)
-2. Click "Classify Bacteria" 
-3. View the results including:
-   - Predicted bacterial species
-   - Confidence scores
-   - Visual charts showing classification probabilities
-   - Bacterial information and characteristics
-   - Classification history
-
-## Features
-
-- Interactive drag-and-drop image upload
-- Real-time classification results
-- Visual confidence charts (bar and pie charts)
-- Detailed bacterial information
-- Classification history
-- Responsive design for all devices
-
-## Technologies Used
-
-- **Frontend**: Next.js 15.5, React 19, TypeScript, Tailwind CSS
-- **Visualization**: Recharts
-- **Backend**: FastAPI, PyTorch, TorchVision
-- **Model**: MobileNetV2 with transfer learning
+### 3. Launching the Application
+Use the provided batch file to start the FastAPI server and the Next.js dev server:
+```bash
+# Starts both services concurrently
+start_application.bat
+```
+The Next.js UI will be available at `http://localhost:3000` and the API documentation at `http://localhost:8000/docs`.
